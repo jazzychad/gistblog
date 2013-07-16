@@ -1,4 +1,4 @@
-module.exports.sitename = "GistBlog";
+module.exports.sitename = "gistblog";
 module.exports.title = "Home";
 
 module.exports.admin_userid = process.env.ADMIN_USERID;
