@@ -4,12 +4,24 @@ var sys = require('util');
 var User = require('../models/User').User;
 var BlogPost = require('../models/BlogPost').BlogPost;
 var GitHubApi = require('github');
+var redis = require('redis');
 var qs = require('querystring');
 var MD = require('marked');
 
 var github = new GitHubApi({
   version: "3.0.0"
 });
+
+var rclient;
+
+if (config.redis_uri) {
+  var uri = urlparse(process.env.REDISTOGO_URL);
+  rclient = redis.createClient(uri.port, uri.host.split(":")[0]);
+  rclient.auth(uri.auth.split(":")[1]);
+} else {
+  rclient = redis.createClient();
+}
+
 
 function getClientIp(req) {
 
@@ -74,85 +86,98 @@ exports.bounce_shortid = function(req, res) {
   }));
 };
 
-exports.view_post = function(req, res) {
+var render_post = function(req, res, gist, doc) {
+  console.log("GIST!!!!!\n" + JSON.stringify(gist, null, 4));
 
+  if (gist.user && gist.url) {
+    var metadata = JSON.parse(gist.files["metadata.json"].content);
+    var viewable = false;
+
+    if (gist["public"]) {
+      viewable = true;
+    } else {
+      // private...
+      if (req.session && req.session.user && gist.user.id.toString() === req.session.user.userid) {
+        // owner, so yes
+        viewable = true;
+      } else {
+        // see if user is in allowed_viewers
+        if (req.session && req.session.user && req.session.user.username) {
+          var allowed_viewers = metadata.allowed_viewers || {};
+          for (var idx = 0; idx < allowed_viewers.length; idx++) {
+            if (allowed_viewers[idx] === req.session.user.username) {
+              viewable = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    if (viewable) {
+      var post = gist.files["post.md"].content;
+      var title = metadata.title;
+      MD(post, {gfm: true}, function(err, content) {
+        doc.body = content;
+        doc.title = title;
+        doc.username = gist.user.login;
+        doc.post_id = gist.id;
+        doc.tstamp = new Date(gist.created_at);
+
+        render(res, 'view_post', {user: req.session.user, blog_post: doc, title: doc.title});
+
+        update_post(req, res, doc);
+      });
+    } else {
+      render(res, 'not_found', {title: "Not Found", user: req.session.user});
+    }
+  } else {
+
+    BlogPost.findOne({gistIdStr: req.params.id}).remove();
+
+    //res.end('invalid post id');
+    render(res, 'not_found', {title: "Not Found", user: req.session.user});
+  }
+};
+
+exports.view_post = function(req, res) {
   BlogPost.findOne({gistIdStr: req.params.id}, function(e, doc) {
     if (e) {
       res.end('fatal error :(');
       return;
     }
     if (!doc) {
-      doc = {};
+      render(res, 'not_found', {title: "Not Found", user: req.session.user});
+      return;
     }
-    var access_token = (req.session && req.session.user ? req.session.user.access_token : config.gh_application_access_token);
-    var ghapi = new GHAPI(access_token);
-    //ghapi.getStatus(req.params.id, function(err, result, obj) {
-    ghapi.request(ghapi.client.gists.get, {id: req.params.id}, function(err, gist) {
-      if (err) {
-        console.log('view_post error w/ api: ' + err);
-        res.end('error....');
+
+    rclient.get("gistblog:post:" + req.params.id + ":json", function(rerror, rresult) {
+      if (rerror) {
+        res.end('fatal redis error');
         return;
       }
-      console.log("GIST!!!!!\n" + JSON.stringify(gist, null, 4));
-      //res.end(JSON.stringify(gist, null, 4));
-
-
-
-      if (gist.user && gist.url) {
-        var metadata = JSON.parse(gist.files["metadata.json"].content);
-        var viewable = false;
-
-        if (gist["public"]) {
-          viewable = true;
-        } else {
-          // private...
-          if (req.session && req.session.user && gist.user.id.toString() === req.session.user.userid) {
-            // owner, so yes
-            viewable = true;
-          } else {
-            // see if user is in allowed_viewers
-            if (req.session && req.session.user && req.session.user.username) {
-              var allowed_viewers = metadata.allowed_viewers || {};
-              for (var idx = 0; idx < allowed_viewers.length; idx++) {
-                if (allowed_viewers[idx] === req.session.user.username) {
-                  viewable = true;
-                  break;
-                }
-              }
-            }
-          }
-        }
-
-        if (viewable) {
-          var post = gist.files["post.md"].content;
-          var title = metadata.title;
-          MD(post, {gfm: true}, function(err, content) {
-            doc.body = content;
-            doc.title = title;
-            doc.username = gist.user.login;
-            doc.post_id = gist.id;
-            doc.tstamp = new Date(gist.created_at);
-
-            render(res, 'view_post', {user: req.session.user, blog_post: doc, title: doc.title});
-
-            update_post(req, res, doc);
-          });
-        } else {
-
-          render(res, 'not_found', {title: "Not Found", user: req.session.user});
-        }
+      if (rresult) {
+        console.log('redis hit!' + req.params.id);
+        render_post(req, res, JSON.parse(rresult), doc);
       } else {
 
-        BlogPost.findOne({gistIdStr: req.params.id}).remove();
-
-        //res.end('invalid post id');
-        render(res, 'not_found', {title: "Not Found", user: req.session.user});
-
-
+        var access_token = (req.session && req.session.user ? req.session.user.access_token : config.gh_application_access_token);
+        var ghapi = new GHAPI(access_token);
+        //ghapi.getStatus(req.params.id, function(err, result, obj) {
+        ghapi.request(ghapi.client.gists.get, {id: req.params.id}, function(err, gist) {
+          if (err) {
+            console.log('view_post error w/ api: ' + err);
+            res.end('error....');
+            return;
+          }
+          // render post
+          render_post(req, res, gist, doc);
+          // cache in redis
+          rclient.setex("gistblog:post:" + req.params.id + ":json", 600, JSON.stringify(gist));
+        });
       }
     });
   });
-
 };
 
 exports.user_index = function(req, res) {

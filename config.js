@@ -6,6 +6,7 @@ module.exports.admin_userid = process.env.ADMIN_USERID;
 module.exports.siteurl = process.env.SITEURL;
 
 module.exports.mongo_uri = process.env.MONGOLAB_URI;
+module.exports.redis_uri = process.env.REDISTOGO_URL;
 
 module.exports.gh_consumer_key = process.env.GH_CONSUMER_KEY;
 module.exports.gh_consumer_secret = process.env.GH_CONSUMER_SECRET;
