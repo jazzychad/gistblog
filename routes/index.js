@@ -5,6 +5,7 @@ var User = require('../models/User').User;
 var BlogPost = require('../models/BlogPost').BlogPost;
 var GitHubApi = require('github');
 var redis = require('redis');
+var urlparse = require('url').parse;
 var qs = require('querystring');
 var MD = require('marked');
 
