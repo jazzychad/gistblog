@@ -17,7 +17,9 @@ html(lang='en')
     link(href="/css/style.css", rel="stylesheet")
   body
     block navbar
-      if user
+      if user.is_admin
+        include includes/nav_in_admin
+      else if user
         include includes/nav_in
       else
         include includes/nav_out
