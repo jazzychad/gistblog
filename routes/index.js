@@ -84,7 +84,7 @@ exports.view_post = function(req, res) {
     if (!doc) {
       doc = {};
     }
-    var access_token = (req.session && req.session.user ? req.session.user.access_token : null);
+    var access_token = (req.session && req.session.user ? req.session.user.access_token : config.gh_application_access_token);
     var ghapi = new GHAPI(access_token);
     //ghapi.getStatus(req.params.id, function(err, result, obj) {
     ghapi.request(ghapi.client.gists.get, {id: req.params.id}, function(err, gist) {
