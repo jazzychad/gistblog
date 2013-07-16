@@ -22,6 +22,7 @@ To setup run the following commands:
     npm install -d
     heroku apps:create --stack cedar <app_name_here>
     heroku addons:add mongolab:sandbox # free 496mg mongo tier
+    heroku addons:add redistogo:nano # free 5mb redis server
 
 use foreman for local heroku testing
 
