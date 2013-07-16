@@ -2,7 +2,7 @@
 
 gistblog is a simple node.js app (easily hosted on Heroku) that uses
 Github for user authentication and Gists for the backing store of post
-data. gitblog presents a simple interface to quickly compose
+data. gistblog presents a simple interface to quickly compose
 markdown-based posts and display them to readers.
 
 The author may publish posts as public, private, or limit viewing of
