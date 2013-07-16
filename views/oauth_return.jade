@@ -1,0 +1,35 @@
+doctype 5
+html(lang='en')
+  head
+    title= sitename
+      &nbsp;-&nbsp;&nbsp;-&nbsp;
+      = title
+    link(rel="icon", href="/img/favicon.ico", type="image/x-icon")
+    link(rel="shortcut icon", href="/img/favicon.ico", type="image/x-icon")
+    link(href="/css/bootstrap.min.css", rel="stylesheet")
+    //link(href="/css/bootstrap-responsive.css", rel="stylesheet")
+    link(href="/css/style.css", rel="stylesheet")
+  body
+    block navbar
+      div.navbar.navbar-fixed-top
+        div.navbar-inner
+          div.container
+            a.brand(href="/")= sitename
+            div.nav-collapse
+              ul.nav
+                li
+                  a(href="/") Home
+              ul.nav.pull-right
+                li.divider-vertical
+                li
+                  a(href="/login") Login with App.net
+
+    div.container
+      block content
+      p One Moment...
+
+
+  script(src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js", type="text/javascript")
+  script(src="/js/bootstrap.min.js", type="text/javascript")
+  block scripts_extra
+    script(src="/js/auth.js", type="text/javascript")

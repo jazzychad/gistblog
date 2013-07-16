@@ -1,0 +1,21 @@
+extends index
+
+block navbar
+  if user
+    include includes/nav_in
+  else
+    include includes/nav_out
+
+block content
+  div.span8.offset2
+    h1
+      =author.username
+
+    each post in blog_posts
+      p
+        h3(style="margin-top:45px")
+          a(href="/"+post.gistIdStr)
+            = post.title
+        | &mdash; 
+        = post.tstamp.toLocaleDateString()
+      hr

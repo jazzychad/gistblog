@@ -1,0 +1,15 @@
+# copy and paste these lines into your shell
+# where you run foreman
+#
+# change values to your sepcific setup
+
+export ADMIN_USERID="000000" # your gh userid
+export SITEURL="http://localhost:5000/"
+export MONGOLAB_URI="mongodb://localhost/gistblogs"
+export GH_CONSUMER_KEY="<gh consumer key here>"
+export GH_CONSUMER_SECRET="<gh consumer secret here>"
+export GH_CALLBACK="http://localhost:5000/oauth/callback"
+export EXPRESS_SESSION_SECRET="<random secret key here>"
+export SHORTID_SEED=1234567890
+export GA_ID="<google analytics id here>"
+export GA_DOMAIN="<google analytics domain here>"

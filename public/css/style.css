@@ -1,0 +1,29 @@
+body {
+  padding: 35px;
+  /*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
+  background: #fff url("/img/vintage_speckles.png");
+}
+
+a {
+  color: #00B7FF;
+}
+
+/* bootstrap tweaks */
+
+.navbar {
+  margin-bottom: 3.5em;
+}
+
+.navbar .nav li span.user {
+  padding: 19.375px 8px 19.375px;
+  display: block;
+  
+  line-height: 1.25em;
+  /*color: #eee;*/
+}
+
+.navbar .nav li span.userimg {
+  padding: 17.375px 8px 5px;
+  display: block;
+  line-height: 1.25em;
+}

@@ -1,0 +1,49 @@
+extends index
+
+block navbar
+  if user
+    include includes/nav_in
+  else
+    include includes/nav_out
+
+block content
+  if blog_post
+    h2 Edit Blog Post
+  else
+    h2 New Blog Post
+  form.form-horizontal(method="POST")
+    div.control-group
+      label.control-label Title
+      div.controls
+        if blog_post
+          input(type="text", name="title", placeholder="Title", value=blog_post.title, id="post_title")
+        else
+          input(type="text", name="title", placeholder="Title", class="span8", id="post_title")
+    div.control-group
+      label.control-label Private
+      div.controls  
+        input(type="checkbox", name="is_private")
+    div.control-group
+      label.control-label Allowed Viewers
+      div.controls
+        input(type="text", name="allowed_viewers", class="span8", id="allowed_viewers")
+    div.control-group
+      label.control-label Body
+      div.controls
+        textarea(name="body", rows="20", cols="15", class="span8", id="post_body")
+          if blog_post
+            =blog_post.draftText
+    div.control-group
+      div.controls
+        input.btn.btn-primary(type="submit")
+
+    hr
+    h2 Preview
+    p A live preview of your post (including Markdown styling) will appear below
+    hr
+
+    div#preview
+
+block scripts_extra
+  script(src="/js/marked.js", type="text/javascript")
+  script(src="/js/compose.js", type="text/javascript")
