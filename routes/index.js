@@ -90,7 +90,7 @@ exports.bounce_shortid = function(req, res) {
 var render_post = function(req, res, gist, doc) {
   console.log("GIST!!!!!\n" + JSON.stringify(gist, null, 4));
 
-  if (gist.user && gist.url) {
+  if (gist.owner && gist.url) {
     var metadata = JSON.parse(gist.files["metadata.json"].content);
     var viewable = false;
 
@@ -98,7 +98,7 @@ var render_post = function(req, res, gist, doc) {
       viewable = true;
     } else {
       // private...
-      if (req.session && req.session.user && gist.user.id.toString() === req.session.user.userid) {
+      if (req.session && req.session.user && gist.owner.id.toString() === req.session.user.userid) {
         // owner, so yes
         viewable = true;
       } else {
@@ -121,7 +121,7 @@ var render_post = function(req, res, gist, doc) {
       MD(post, {gfm: true}, function(err, content) {
         doc.body = content;
         doc.title = title;
-        doc.username = gist.user.login;
+        doc.username = gist.owner.login;
         doc.post_id = gist.id;
         doc.tstamp = new Date(gist.created_at);
 
@@ -134,7 +134,9 @@ var render_post = function(req, res, gist, doc) {
     }
   } else {
 
-    BlogPost.findOne({gistIdStr: req.params.id}).remove();
+    // don't remove too eagerly, this could wipe out valid posts
+    // e.g. if the server is down or returns malformed json
+    // //BlogPost.findOne({gistIdStr: req.params.id}).remove();
 
     //res.end('invalid post id');
     render(res, 'not_found', {title: "Not Found", user: req.session.user});
