@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "express": "3.3.4",
-    "jade": ">= 0.0.1",
+    "jade": "0.25.0",
     "ejs": "0.7.1",
     "github": "0.1.8",
     "mongoose": "2.5.10",
