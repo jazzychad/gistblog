@@ -39,6 +39,7 @@ app.configure(function(){
 
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+//  app.locals.pretty = true;
 });
 
 app.configure('production', function(){
@@ -72,6 +73,9 @@ app.get('/about', routes.about);
 app.get('/compose', protect, admin, routes.new_post);
 app.post('/compose', protect, admin, routes.create_post);
 
+app.get('/edit/:id', protect, admin, routes.edit_post);
+app.post('/edit/:id', protect, admin, routes.update_post_gist);
+
 app.get('/login', routes.login);
 app.get('/logout', routes.logout);
 
@@ -83,6 +87,7 @@ app.post('/ajax/human_view/:id', routes.ajax_human_view);
 //app.get('/:id', routes.view_post);
 
 app.get('/gist/:id', routes.view_post);
+app.get('/post/:id', routes.view_post);
 
 app.get('/user/:username', routes.user_index);
 

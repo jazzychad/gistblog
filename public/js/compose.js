@@ -13,4 +13,6 @@ $(document).ready(function() {
 
   $('#post_body').bind('input propertychange', renderPreview);
   $('#post_title').bind('input propertychange', renderPreview);
+
+  renderPreview();
 });

@@ -54,13 +54,13 @@ module.exports.GHAPI = function(access_token) {
     request(full_path, requestCallback(callback));
   };
 
-  var post = function(path, params, callback) {
+  var do_request = function(method, path, params, callback) {
     if (!params.access_token) {
         params.access_token = self.access_token;
     }
     var opts = {
       uri: self.api_base + path,
-      method: "POST",
+      method: method,
       headers: {
         "Authorization": "Bearer " + params.access_token,
         "Content-type": "application/json"
@@ -70,7 +70,14 @@ module.exports.GHAPI = function(access_token) {
     console.log(sys.inspect(opts));
     var finalCallback = requestCallback(callback);
     request(opts, finalCallback);
+  };
 
+  var post = function(path, params, callback) {
+    do_request("POST", path, params, callback);
+  };
+
+  var patch = function(path, params, callback) {
+    do_request("PATCH", path, params, callback);
   };
 
   var oauth_post = function(path, params, callback) {

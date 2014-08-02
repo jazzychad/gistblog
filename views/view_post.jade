@@ -11,6 +11,10 @@ block content
     h1
       =blog_post.title
 
+    if user && user.userid && user.userid == blog_post.ownerIdStr
+      a(href="/edit/"+blog_post.gistIdStr)
+        | Edit Post
+
     p
       =blog_post.tstamp.toLocaleDateString()
       | &nbsp;

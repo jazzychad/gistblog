@@ -88,7 +88,7 @@ exports.bounce_shortid = function(req, res) {
 };
 
 var render_post = function(req, res, gist, doc) {
-  console.log("GIST!!!!!\n" + JSON.stringify(gist, null, 4));
+  //console.log("GIST!!!!!\n" + JSON.stringify(gist, null, 4));
 
   if (gist.owner && gist.url) {
     var metadata = JSON.parse(gist.files["metadata.json"].content);
@@ -127,7 +127,7 @@ var render_post = function(req, res, gist, doc) {
 
         render(res, 'view_post', {user: req.session.user, blog_post: doc, title: doc.title});
 
-        update_post(req, res, doc);
+        update_post_in_db(req, res, doc);
       });
     } else {
       render(res, 'not_found', {title: "Not Found", user: req.session.user});
@@ -141,6 +141,19 @@ var render_post = function(req, res, gist, doc) {
     //res.end('invalid post id');
     render(res, 'not_found', {title: "Not Found", user: req.session.user});
   }
+};
+
+var get_gist_from_github = function(req, gistIdStr, callback) {
+  var access_token = (req.session && req.session.user ? req.session.user.access_token : null);
+  var ghapi = new GHAPI(access_token);
+  ghapi.request(ghapi.client.gists.get, {id: gistIdStr}, function(err, gist) {
+    if (err) {
+      console.log('view_post error w/ api: ' + err);
+      callback(err, null);
+      return;
+    }
+    callback(null, gist);
+  });
 };
 
 exports.view_post = function(req, res) {
@@ -164,10 +177,7 @@ exports.view_post = function(req, res) {
         render_post(req, res, JSON.parse(rresult), doc);
       } else {
 
-        var access_token = (req.session && req.session.user ? req.session.user.access_token : null);
-        var ghapi = new GHAPI(access_token);
-        //ghapi.getStatus(req.params.id, function(err, result, obj) {
-        ghapi.request(ghapi.client.gists.get, {id: req.params.id}, function(err, gist) {
+        get_gist_from_github(req, req.params.id, function(err, gist) {
           if (err) {
             console.log('view_post error w/ api: ' + err);
             res.end('error....');
@@ -194,7 +204,7 @@ exports.user_index = function(req, res) {
 exports.ajax_human_view = function(req, res) {
   BlogPost.findOne({gistIdStr: req.params.id}, generic_doc_handler(res, function(blog_post) {
     blog_post.views++;
-    update_post(req, res, blog_post);
+    update_post_in_db(req, res, blog_post);
     res.end('ok');
   }));
 };
@@ -219,8 +229,41 @@ exports.new_post = function(req, res) {
   render(res, 'new_post', {user: req.session.user, blog_post: null, title: "New Post"});
 };
 
+exports.edit_post = function(req, res) {
+  BlogPost.findOne({gistIdStr: req.params.id}, function(e, doc) {
+    if (!e && doc) {
+      get_gist_from_github(req, doc.gistIdStr, function(err, gist) {
+        var metadata = JSON.parse(gist.files["metadata.json"].content);
+        var post = gist.files["post.md"].content;
+        var title = metadata.title;
+        doc.body = post;
+        doc.allowed_viewers_string = metadata.allowed_viewers ? metadata.allowed_viewers.join(", ") : "";
+        doc.is_private = metadata.visibility == "private" || metadata.visbility == "private";
+        doc.title = title;
+        doc.username = gist.owner.login;
+        doc.post_id = gist.id;
+        render(res, 'new_post', {user: req.session.user, blog_post: doc, title: doc.title});
+      });
+
+
+    } else {
+      res.end('error getting post!');
+    }
+  });
+};
+
 exports.create_post = function(req, res) {
   publish_post(req, res, true, null);
+};
+
+exports.update_post_gist = function(req, res) {
+  BlogPost.findOne({gistIdStr: req.body.gistId}, function(e, doc) {
+      if (!e && doc) {
+        publish_post(req, res, false, doc);
+      } else {
+        res.end('error updating post!');
+      }
+  });
 };
 
 var publish_post = function(req, res, is_newpost, blog_post) {
@@ -256,7 +299,8 @@ var publish_post = function(req, res, is_newpost, blog_post) {
         var visibility = is_private ? "private" : "public";
         var metadata = {
           title: req.body.title.trim(),
-          visbility: visibility
+          visbility: visibility,
+          visibility: visibility
         };
         if (req.body.allowed_viewers && req.body.allowed_viewers.length && is_private) {
           metadata.allowed_viewers = req.body.allowed_viewers.split(",").map(function(item){return item.trim();});
@@ -280,9 +324,9 @@ var publish_post = function(req, res, is_newpost, blog_post) {
             console.log('error posting gist: ' + err2);
             return;
           }
-          console.log("GIST!!!!!");
-          console.log(sys.inspect(gist));
-          console.log("<<<< GIST!!!!!!");
+          //console.log("GIST!!!!!");
+          //console.log(sys.inspect(gist));
+          //console.log("<<<< GIST!!!!!!");
           if (!gist.url) {
             res.end('something went terribly wrong :(');
             return;
@@ -295,7 +339,15 @@ var publish_post = function(req, res, is_newpost, blog_post) {
               console.log('error saving 2nd time: ' + ee);
               return;
             }
-            res.redirect('/gist/'+ dd.gistIdStr);
+            // invalidate cache if updated so latest is visible next time
+            if (!is_newpost) {
+              rclient.del("gistblog:post:" + req.params.id + ":json", function(rerr, rresult) {
+                res.redirect('/gist/'+ dd.gistIdStr);
+              });
+            } else {
+              res.redirect('/gist/'+ dd.gistIdStr);
+            }
+
           });
         });
       });
@@ -309,7 +361,7 @@ var publish_post = function(req, res, is_newpost, blog_post) {
   });
 };
 
-var update_post = function(req, res, blog_post, callback) {
+var update_post_in_db = function(req, res, blog_post, callback) {
   if (blog_post && blog_post.save) {
     blog_post.save(function(err, doc) {
       if (callback) {
@@ -333,11 +385,11 @@ exports.logout = function(req, res) {
 };
 
 exports.oauth_return = function(req, res) {
-  console.log("code is: " + req.query.code);
+  //console.log("code is: " + req.query.code);
   var ghapi = new GHAPI();
   ghapi.getAccessToken(req.query.code, function(err, result, data) {
-    console.log(data);
-    console.log("got access token: " + data.access_token);
+    //console.log(data);
+    //console.log("got access token: " + data.access_token);
     if (data.error) {
       res.end('error: ' + data.error);
       return;
@@ -347,7 +399,7 @@ exports.oauth_return = function(req, res) {
     //github.user.get({}, function(err, user) {
     ghapi.access_token = data.access_token;
     ghapi.request(ghapi.client.user.get, {}, function(err, user) {
-      console.log("got user result: " + JSON.stringify(user));
+      //console.log("got user result: " + JSON.stringify(user));
       req.session.user = {
         "userid": user.id.toString(),
         "username": user.login,
@@ -356,8 +408,8 @@ exports.oauth_return = function(req, res) {
         "is_admin": user.id.toString() === config.admin_userid ? true : false,
         "name": user.name
       };
-                    console.log('user.id: ' + user.id.toString());
-                    console.log('config.admin: ' + config.admin_userid);
+      //console.log('user.id: ' + user.id.toString());
+      //console.log('config.admin: ' + config.admin_userid);
 
       User.findOne({gh_userid: user.id}, function(err, doc) {
         if (err) {
