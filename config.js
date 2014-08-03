@@ -1,4 +1,4 @@
-module.exports.sitename = "gistblog";
+module.exports.sitename = process.env.SITE_NAME || "gistblog";
 module.exports.title = "home";
 
 module.exports.is_multitenant = parseInt(process.env.GISTBLOG_IS_MULTITENANT, 0);
