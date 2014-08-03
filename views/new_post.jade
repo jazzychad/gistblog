@@ -11,40 +11,40 @@ block content
     h2 Edit Blog Post
   else
     h2 New Blog Post
-  form.form-horizontal(method="POST")
-    div.control-group
-      label.control-label Title
-      div.controls
+  form.form-horizontal(method="POST", role="form")
+    div.form-group
+      label.control-label.col-md-2 Title
+      div.controls.col-md-8
         if blog_post
-          input(type="text", name="title", placeholder="Title", class="span8", value=blog_post.title, id="post_title")
+          input(type="text", name="title", placeholder="Title", class="form-control", value=blog_post.title, id="post_title")
         else
-          input(type="text", name="title", placeholder="Title", class="span8", id="post_title")
-    div.control-group
-      label.control-label Private
-      div.controls
+          input(type="text", name="title", placeholder="Title", class="form-control", id="post_title")
+    div.form-group
+      label.control-label.col-md-2 Private
+      div.controls.col-md-8
         if blog_post && blog_post.is_private
-          input(type="checkbox", name="is_private", checked="checked", disabled="true")
+          input(type="checkbox", name="is_private", checked="checked", disabled="true", class="form-control")
         else if blog_post
-          input(type="checkbox", name="is_private", disabled="true")
+          input(type="checkbox", name="is_private", disabled="true", class="form-control")
         else
           input(type="checkbox", name="is_private")
-    div.control-group
-      label.control-label Allowed Viewers
-      div.controls
+    div.form-group
+      label.control-label.col-md-2 Allowed Viewers
+      div.controls.col-md-8
         if blog_post && blog_post.is_private
-          input(type="text", name="allowed_viewers", class="span8", id="allowed_viewers", value=blog_post.allowed_viewers_string)
+          input(type="text", name="allowed_viewers", class="form-control", id="allowed_viewers", value=blog_post.allowed_viewers_string)
         else if blog_post
-          input(type="text", name="allowed_viewers", class="span8", id="allowed_viewers", value="", disabled="true")
+          input(type="text", name="allowed_viewers", class="form-control", id="allowed_viewers", value="", disabled="true")
         else
-          input(type="text", name="allowed_viewers", class="span8", id="allowed_viewers")
-    div.control-group
-      label.control-label Body
-      div.controls
-        textarea(name="body", rows="20", cols="15", class="span8", id="post_body")
+          input(type="text", name="allowed_viewers", class="form-control", id="allowed_viewers")
+    div.form-group
+      label.control-label.col-md-2 Body
+      div.controls.col-md-8
+        textarea(name="body", rows="20", cols="15", class="form-control", id="post_body")
           if blog_post
             =blog_post.draftText || blog_post.body
-    div.control-group
-      div.controls
+    div.form-group
+      div.controls.col-md-8.col-md-offset-2
         if blog_post
           input(type="hidden", name="gistId", value=blog_post.gistIdStr)
         input.btn.btn-primary(type="submit")

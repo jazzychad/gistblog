@@ -1,16 +1,16 @@
-div.navbar
-  div.navbar-inner
-    div.container
-      a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+nav.navbar.navbar-default
+  div.container
+    div.navbar-header
+      a.navbar-brand(href="/")= sitename
+      button.navbar-toggle(data-toggle="collapse", data-target="#navbar-main")
         span.icon-bar
         span.icon-bar
         span.icon-bar
-      a.brand(href="/")= sitename
-      div.nav-collapse
-        ul.nav
-          li
-            a(href="/about") about
-        ul.nav.pull-right
-          li.divider-vertical
-          li
-            a(href="/login") login with github
+    div#navbar-main.navbar-collapse.collapse
+      ul.nav.navbar-nav
+        li
+          a(href="/about") about
+      ul.nav.navbar-nav.pull-right
+        li.divider-vertical
+        li
+          a(href="/login") login with github

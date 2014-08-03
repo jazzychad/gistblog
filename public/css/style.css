@@ -1,7 +1,7 @@
 body {
   padding: 35px;
   /*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
-  background: #fff url("/img/vintage_speckles.png");
+  /*background: #fff url("/img/vintage_speckles.png");*/
 }
 
 a {
@@ -15,7 +15,7 @@ a {
 }
 
 .navbar .nav li span.user {
-  padding: 19.375px 8px 19.375px;
+  padding: 23.375px 8px 19.375px;
   display: block;
   
   line-height: 1.25em;
@@ -23,7 +23,7 @@ a {
 }
 
 .navbar .nav li span.userimg {
-  padding: 17.375px 8px 5px;
+  padding: 21.375px 8px 5px;
   display: block;
   line-height: 1.25em;
 }

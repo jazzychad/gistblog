@@ -1,4 +1,30 @@
-div.navbar
+nav.navbar.navbar-default
+  div.container
+    div.navbar-header
+      a.navbar-brand(href="/")= sitename
+      button.navbar-toggle(data-toggle="collapse", data-target="#navbar-main")
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+    div#navbar-main.navbar-collapse.collapse
+      ul.nav.navbar-nav
+        li
+          a(href="/compose") compose
+        li
+          a(href="/about") about
+      ul.nav.navbar-nav.pull-right
+        li
+          span.userimg
+            img(src="#{user.avatar}", height="24", width="24")
+        li
+          span.nav.navbar-nav.user
+            = user.username
+        li.divider-vertical
+        li
+          a(href="/logout") logout
+
+
+//div.navbar
   div.navbar-inner
     div.container
       a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
