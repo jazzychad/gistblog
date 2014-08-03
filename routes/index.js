@@ -199,7 +199,7 @@ exports.view_post = function(req, res) {
           // render post
           render_post(req, res, gist, doc);
           // cache in redis
-          rclient.setex("gistblog:post:" + req.params.id + ":json", 600, JSON.stringify(gist));
+          rclient.setex("gistblog:post:" + req.params.id + ":json", 60000, JSON.stringify(gist));
         });
       }
     });
@@ -361,10 +361,10 @@ var publish_post = function(req, res, is_newpost, blog_post) {
             // invalidate cache if updated so latest is visible next time
             if (!is_newpost) {
               rclient.del("gistblog:post:" + req.params.id + ":json", function(rerr, rresult) {
-                res.redirect('/gist/'+ dd.gistIdStr);
+                res.redirect('/post/'+ dd.gistIdStr);
               });
             } else {
-              res.redirect('/gist/'+ dd.gistIdStr);
+              res.redirect('/post/'+ dd.gistIdStr);
             }
 
           });
