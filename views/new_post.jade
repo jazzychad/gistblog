@@ -20,7 +20,7 @@ block content
         else
           input(type="text", name="title", placeholder="Title", class="form-control", id="post_title")
     div.form-group
-      label.control-label.col-md-2 Private
+      label.control-label.col-md-2 Unlisted
       div.controls.col-md-8
         if blog_post && blog_post.is_private
           input(type="checkbox", name="is_private", checked="checked", disabled="true", class="form-control")

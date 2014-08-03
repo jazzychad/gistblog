@@ -1,0 +1,44 @@
+extends index
+
+block content
+  div.col-md-7.col-md-offset-2
+    h1 gistbits
+    p
+      | Hi, I'm 
+      a(href="http://jazzychad.net") jazzychad
+      |.
+
+    p
+      b gistbits 
+      | is a blogging platform for Github users. Posts are stored as gists on the user's account. You can create public posts, unlisted posts (only viewable if you send someone the url), or even access-restricted posts that can only be read by certain other Github users.
+
+    p
+      | It's open-source. You can find the code here: 
+      a(href="https://github.com/jazzychad/gistblog")
+        | https://github.com/jazzychad/gistblog
+
+    p
+      | You can host your own personal gistblog, host a multi-tenant site where anyone can post (like this one!), or even a community site which is restricted to allowing certain users to post.
+
+    h2 FAQ
+
+    p
+      b Why build gistbits?
+    p
+      | I wanted something to quickly publish thoughts that were longer than a tweet, but less heavy-weight than a full blog post. I created my own <a href="http://txt.jazzychad.net">gistblog</a>, and people seemed interested in using a similar system, so I updated the code to support multiple authors on the same site.
+
+    p
+      b Who can post on gistbits?
+    p
+      | Eventually anyone with a Github account! Right now I am keeping authors to an invite-only list to see if this is actually a system that people want to use to express their thoughts. If it proves to be worthy of more users, then over time I will open it up to more people, then eventually everyone!
+
+    p
+      b How can I request access?
+    p
+      | Please fill out this form: 
+      a(href="https://docs.google.com/forms/d/1POhYkaPOqiaDNH4sVqyv7kLsU9hh2YF7fr5CQjyKa8w/viewform?usp=send_form") request gistbits access
+
+    p
+      b I want to write a post with images, can I?
+    p
+      | Great! Yes, you can, if you upload your image to an image-hosting service and then reference it from your post using the markdown syntax. I have no current or future plans to support uploading images through the gistbits interface.

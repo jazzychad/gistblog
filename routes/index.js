@@ -91,7 +91,7 @@ exports.index = function(req, res) {
 };
 
 exports.about = function(req, res) {
-  render(res, "about", {title: "About", user: req.session.user});
+  render(res, config.about_view, {title: "About", user: req.session.user});
 };
 
 exports.bounce_shortid = function(req, res) {

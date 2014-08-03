@@ -3,6 +3,8 @@ module.exports.title = "home";
 
 module.exports.is_multitenant = parseInt(process.env.GISTBLOG_IS_MULTITENANT, 0);
 
+module.exports.about_view = process.env.ABOUT_VIEW || "about";
+
 var allowed_users = process.env.GISTBLOG_ALLOWED_USERS;
 if (allowed_users && allowed_users.length) {
   module.exports.allowed_users = allowed_users.split(',');
