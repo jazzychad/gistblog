@@ -14,7 +14,7 @@ block content
     each post in blog_posts
       p
         h3(style="margin-top:45px")
-          a(href="/gist/"+post.gistIdStr)
+          a(href="/post/"+post.gistIdStr)
             = post.title
         | &mdash; 
         = post.tstamp.toLocaleDateString()

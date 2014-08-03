@@ -3,6 +3,7 @@
 #
 # change values to your sepcific setup
 
+export GISTBLOG_IS_MULTITENANT=0
 export ADMIN_USERID="000000" # your gh userid
 export SITEURL="http://localhost:5000/"
 export MONGOLAB_URI="mongodb://localhost/gistblogs"

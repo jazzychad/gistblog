@@ -47,10 +47,23 @@ function getClientIp(req) {
 
 var render = function(res, path, opts) {
   opts = opts || {};
+  opts.config = config;
   opts.sitename = opts.sitename || config.sitename;
   opts.title = opts.title || config.title;
   opts.ga_id = opts.ga_id || config.ga_id;
   opts.ga_domain = opts.ga_domain || config.ga_domain;
+
+  opts.is_allowed_user = false;
+  if (opts.user) {
+    var username = opts.user.username.toLowerCase();
+    if (opts.user && config.allowed_users == null && config.is_multitenant) {
+      // all logged in users are allowed
+      opts.is_allowed_user = true;
+    } else if (opts.user && config.allowed_users && config.allowed_users.length && config.allowed_users.indexOf(username) !== -1 && config.is_multitenant) {
+      // only some users are allowed
+      opts.is_allowed_user = true;
+    }
+  }
 
   res.render(path, opts);
 };
@@ -72,7 +85,7 @@ var get_user = function(req, callback) {
 };
 
 exports.index = function(req, res) {
-  BlogPost.find({isPublic: true}).sort('tstamp', -1).exec(generic_doc_handler(res, function(docs) {
+  BlogPost.find({isPublic: true}).sort('tstamp', -1).limit(20).exec(generic_doc_handler(res, function(docs) {
     render(res, 'index', {title: "Home", blog_posts: docs, user: req.session.user});
   }));
 };
@@ -232,6 +245,11 @@ exports.new_post = function(req, res) {
 exports.edit_post = function(req, res) {
   BlogPost.findOne({gistIdStr: req.params.id}, function(e, doc) {
     if (!e && doc) {
+      // make sure user is owner of post
+      if (doc.ownerIdStr !== req.session.user.userid) {
+        res.end('not allowed');
+        return;
+      }
       get_gist_from_github(req, doc.gistIdStr, function(err, gist) {
         var metadata = JSON.parse(gist.files["metadata.json"].content);
         var post = gist.files["post.md"].content;
@@ -306,6 +324,7 @@ var publish_post = function(req, res, is_newpost, blog_post) {
           metadata.allowed_viewers = req.body.allowed_viewers.split(",").map(function(item){return item.trim();});
         }
         var opts = {
+          description: blog_post.title,
           "public": !is_private,
           files: {
             "post.md": {

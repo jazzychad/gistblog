@@ -19,6 +19,8 @@ html(lang='en')
     block navbar
       if user && user.is_admin
         include includes/nav_in_admin
+      else if user && is_allowed_user
+        include includes/nav_in_multitenant
       else if user
         include includes/nav_in
       else
@@ -28,11 +30,11 @@ html(lang='en')
     div.container
       block content
         div.span8.offset2
-          h1 gistblog - latest posts
+          h1 latest posts
           each post in blog_posts
             p
               h3(style="margin-top:45px")
-                a(href="/gist/"+post.gistIdStr)
+                a(href="/post/"+post.gistIdStr)
                   = post.title
               | &mdash; 
               if post.ownerUsername

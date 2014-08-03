@@ -1,6 +1,15 @@
 module.exports.sitename = "gistblog";
 module.exports.title = "home";
 
+module.exports.is_multitenant = parseInt(process.env.GISTBLOG_IS_MULTITENANT, 0);
+
+var allowed_users = process.env.GISTBLOG_ALLOWED_USERS;
+if (allowed_users && allowed_users.length) {
+  module.exports.allowed_users = allowed_users.split(',');
+} else {
+  module.exports.allowed_users = null;
+}
+
 module.exports.admin_userid = process.env.ADMIN_USERID;
 
 module.exports.siteurl = process.env.SITEURL;

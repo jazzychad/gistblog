@@ -64,17 +64,35 @@ var admin = function(req, res, next) {
   }
 };
 
+var access_restricted = function(req, res, next) {
+  if (!config.is_multitenant && req.session.user && req.session.user.is_admin == true) {
+    next();
+  } else if (config.is_multitenant && config.allowed_users && config.allowed_users.length) {
+    var username = req.session.user.username.toLowerCase();
+    if (config.allowed_users.indexOf(username) !== -1) {
+      next();
+    } else {
+      res.redirect('/');
+    }
+  } else {
+    res.redirect('/');
+  }
+
+};
+
 // Routes
 
 app.get('/', routes.index);
 
 app.get('/about', routes.about);
 
-app.get('/compose', protect, admin, routes.new_post);
-app.post('/compose', protect, admin, routes.create_post);
+app.get('/compose', protect, access_restricted, routes.new_post);
+app.post('/compose', protect, access_restricted, routes.create_post);
 
-app.get('/edit/:id', protect, admin, routes.edit_post);
-app.post('/edit/:id', protect, admin, routes.update_post_gist);
+
+app.get('/edit/:id', protect, access_restricted, routes.edit_post);
+app.post('/edit/:id', protect, access_restricted, routes.update_post_gist);
+
 
 app.get('/login', routes.login);
 app.get('/logout', routes.logout);
